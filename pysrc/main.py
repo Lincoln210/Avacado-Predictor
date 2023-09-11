@@ -34,6 +34,31 @@ class AvacadoPredictor(object):
             ) -> AvacadoPredictorType:
 
         # TODO: complete me!
+        total_avacados = len(data)
+        good_to_eat_counts = defaultdict(int)
+        for _, _, good_to_eat in data:
+            good_to_eat_counts[good_to_eat] += 1
+            
+        for good_to_eat, count in good_to_eat_counts.items():
+            self.good_to_eat_prior[good_to_eat] = count / total_avacados
+
+            color_given_good_to_eat_counts = defaultdict(lambda: defaultdict(int))
+            for color, _, good_to_eat in data:
+                color_given_good_to_eat_counts[good_to_eat][color] += 1
+
+            for good_to_eat, colors in color_given_good_to_eat_counts.items():
+                for color, count in colors.items():
+                    self.color_given_good_to_eat_pmf[good_to_eat][color] = count / good_to_eat_counts[good_to_eat]
+
+            softness_given_good_to_eat_counts = defaultdict(lambda: defaultdict(int))
+            for _, softness, good_to_eat in data:
+                softness_given_good_to_eat_counts[good_to_eat][softness] += 1
+
+            for good_to_eat, softnesses in softness_given_good_to_eat_counts.items():
+                for softness, count in softnesses.items():
+                    self.softness_given_good_to_eat_pmf[good_to_eat][softness] = count / good_to_eat_counts[good_to_eat]
+
+        return self
 
         return self
 
