@@ -32,33 +32,24 @@ class AvacadoPredictor(object):
     def fit(self: AvacadoPredictorType,
             data: List[Tuple[Color, Softness, GoodToEat]]
             ) -> AvacadoPredictorType:
-
-        # TODO: complete me!
         total_avacados = len(data)
-        good_to_eat_counts = defaultdict(int)
-        for _, _, good_to_eat in data:
-            good_to_eat_counts[good_to_eat] += 1
-            
-        for good_to_eat, count in good_to_eat_counts.items():
-            self.good_to_eat_prior[good_to_eat] = count / total_avacados
+        for color, softness, good_to_eat in data:
+            self.good_to_eat_prior[good_to_eat] += 1
+            self.color_given_good_to_eat_pmf[good_to_eat][color] += 1
+            self.softness_given_good_to_eat_pmf[good_to_eat][softness] += 1
 
-            color_given_good_to_eat_counts = defaultdict(lambda: defaultdict(int))
-            for color, _, good_to_eat in data:
-                color_given_good_to_eat_counts[good_to_eat][color] += 1
+        for good_to_eat in self.good_to_eat_prior:
+            self.good_to_eat_prior[good_to_eat] = self.good_to_eat_prior[good_to_eat] / total_avacados
 
-            for good_to_eat, colors in color_given_good_to_eat_counts.items():
-                for color, count in colors.items():
-                    self.color_given_good_to_eat_pmf[good_to_eat][color] = count / good_to_eat_counts[good_to_eat]
+        for good_to_eat in self.color_given_good_to_eat_pmf:
+            total_counts: int = sum(self.color_given_good_to_eat_pmf[good_to_eat].values())
+            for color in self.color_given_good_to_eat_pmf[good_to_eat]:
+                self.color_given_good_to_eat_pmf[good_to_eat][color] /= total_counts
 
-            softness_given_good_to_eat_counts = defaultdict(lambda: defaultdict(int))
-            for _, softness, good_to_eat in data:
-                softness_given_good_to_eat_counts[good_to_eat][softness] += 1
-
-            for good_to_eat, softnesses in softness_given_good_to_eat_counts.items():
-                for softness, count in softnesses.items():
-                    self.softness_given_good_to_eat_pmf[good_to_eat][softness] = count / good_to_eat_counts[good_to_eat]
-
-        return self
+        for good_to_eat in self.softness_given_good_to_eat_pmf:
+            total_counts: int = sum(self.softness_given_good_to_eat_pmf[good_to_eat].values())
+            for softness in self.softness_given_good_to_eat_pmf[good_to_eat]:
+                self.softness_given_good_to_eat_pmf[good_to_eat][softness] /= total_counts
 
         return self
 
@@ -69,17 +60,12 @@ class AvacadoPredictor(object):
 
         # TODO: complete me!
 
-        return probs_per_example
-
     def predict_softness_proba(self: AvacadoPredictorType,
                                X: List[Softness]
                                ) -> List[List[Tuple[GoodToEat, float]]]:
         probs_per_example: List[List[Tuple[GoodToEat, float]]] = list()
 
         # TODO: complete me!
-
-        return probs_per_example
-
 
     """
     # EXTRA CREDIT
