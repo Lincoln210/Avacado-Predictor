@@ -32,6 +32,27 @@ class AvacadoPredictor(object):
     def fit(self: AvacadoPredictorType,
             data: List[Tuple[Color, Softness, GoodToEat]]
             ) -> AvacadoPredictorType:
+        total_avacados = len(data)
+        for color, softness, good_to_eat in data:
+            self.good_to_eat_prior[good_to_eat] += 1
+            self.color_given_good_to_eat_pmf[good_to_eat][color] += 1
+            self.softness_given_good_to_eat_pmf[good_to_eat][softness] += 1
+
+        for good_to_eat in self.good_to_eat_prior:
+            self.good_to_eat_prior[good_to_eat] = self.good_to_eat_prior[good_to_eat] / total_avacados
+
+        for good_to_eat in self.color_given_good_to_eat_pmf:
+            total_counts: int = sum(self.color_given_good_to_eat_pmf[good_to_eat].values())
+            for color in self.color_given_good_to_eat_pmf[good_to_eat]:
+                self.color_given_good_to_eat_pmf[good_to_eat][color] /= total_counts
+
+        for good_to_eat in self.softness_given_good_to_eat_pmf:
+            total_counts: int = sum(self.softness_given_good_to_eat_pmf[good_to_eat].values())
+            for softness in self.softness_given_good_to_eat_pmf[good_to_eat]:
+                self.softness_given_good_to_eat_pmf[good_to_eat][softness] /= total_counts
+
+        return self
+
 
     def predict_color_proba(self: AvacadoPredictorType,
                             X: List[Color]
