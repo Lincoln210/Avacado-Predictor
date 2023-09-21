@@ -58,6 +58,25 @@ class AvacadoPredictor(object):
                             X: List[Color]
                             ) -> List[List[Tuple[GoodToEat, float]]]:
         probs_per_example: List[List[Tuple[GoodToEat, float]]] = list()
+
+        prob_colors = defaultdict(float)
+
+        for color in X:
+            prob_colors[color]+= 1 
+
+        total_colors = sum(prob_colors.values())
+        for color, count in prob_colors.items():
+            prob_colors[color] = count / total_colors
+
+        for color in X:
+            list_of_tuples= []
+            for good_to_eat in self.good_to_eat_prior:
+                good_to_eat_given_color_pmf = (self.color_given_good_to_eat_pmf[good_to_eat][color] * self.good_to_eat_prior[good_to_eat]) / prob_colors[color]
+                list_of_tuples.append((good_to_eat, good_to_eat_given_color_pmf))
+            probs_per_example.append(list_of_tuples)
+                
+        return probs_per_example
+
         
     def predict_softness_proba(self: AvacadoPredictorType,
                                X: List[Softness]
