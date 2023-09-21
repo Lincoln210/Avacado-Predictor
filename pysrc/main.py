@@ -118,8 +118,19 @@ class AvacadoPredictor(object):
 
         
     def predict_softness(self: AvacadoPredictorType,
-                    X: List[Color]
-                    ) -> List[GoodToEat]:
+                X: List[Color]
+                ) -> List[GoodToEat]:
+
+        proba_results = self.predict_softness_proba(X)
+        best_predictions = []
+
+        for [good_to_eat_1, prob_1], [good_to_eat_2, prob_2] in proba_results:
+            if prob_1 > prob_2:
+                best_predictions.append(good_to_eat_1)
+            else:
+                best_predictions.append(good_to_eat_2)
+        return best_predictions
+
 
 
 
